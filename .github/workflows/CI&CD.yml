@@ -105,9 +105,13 @@ jobs:
             # Backup docker-compose.yml
             cp docker-compose.yml docker-compose.yml.bak
             
-            echo "🔧 Updating docker-compose.yml with image references..."
-            sed -i "s|  build:.*petmanagement_backend_rajalakshmi|  image: sudalai29/findpet-backend:latest|" docker-compose.yml
-            sed -i "s|  build:.*petmanagement_frontend_rajalakshmi|  image: sudalai29/findpet-frontend:latest|" docker-compose.yml
+            echo "🔧 Updating docker-compose.yml with hardcoded image names..."
+            sed -i "s|<DOCKER_USERNAME>/findpet-backend:latest|sudalai29/findpet-backend:latest|" docker-compose.yml
+            sed -i "s|<DOCKER_USERNAME>/findpet-frontend:latest|sudalai29/findpet-frontend:latest|" docker-compose.yml
+            
+            # Optional: verify the change
+            echo "📝 Updated docker-compose.yml image lines:"
+            grep "image:" docker-compose.yml
             
             echo "📦 Pulling latest images..."
             docker compose pull
@@ -116,6 +120,7 @@ jobs:
             docker compose up -d
             
             echo "✅ Deployment complete."
+
 
 
             
