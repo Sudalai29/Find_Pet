@@ -98,22 +98,25 @@ jobs:
           debug: true
           script: |
             set -e
+
             echo "🚀 Starting deployment..."
             cd /home/ubuntu/Find_Pet/code
-      
-            # Inject Docker username directly from GitHub secret
+            
+            # Backup docker-compose.yml
             cp docker-compose.yml docker-compose.yml.bak
+            
             echo "🔧 Updating docker-compose.yml with image references..."
-            sed -i "s|  build:.*petmanagement_backend_rajalakshmi|  image: ${{ secrets.DOCKER_USERNAME }}/findpet-backend:latest|" docker-compose.yml
-            sed -i "s|  build:.*petmanagement_frontend_rajalakshmi|  image: ${{ secrets.DOCKER_USERNAME }}/findpet-frontend:latest|" docker-compose.yml
-      
+            sed -i "s|  build:.*petmanagement_backend_rajalakshmi|  image: sudalai29/findpet-backend:latest|" docker-compose.yml
+            sed -i "s|  build:.*petmanagement_frontend_rajalakshmi|  image: sudalai29/findpet-frontend:latest|" docker-compose.yml
+            
             echo "📦 Pulling latest images..."
             docker compose pull
-      
+            
             echo "🚢 Starting containers..."
             docker compose up -d
-      
+            
             echo "✅ Deployment complete."
+
 
             
 
