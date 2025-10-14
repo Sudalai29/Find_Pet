@@ -3,7 +3,7 @@ name: Test, Build & Push (Node.js + Angular)
 on:
   push:
     branches:
-      - temp-disable
+      - main
   pull_request:
   workflow_dispatch:
 
@@ -27,12 +27,17 @@ jobs:
           node-version: 20
 
       # -----------------------------
-      # Step 3: Backend - Install deps & run tests
+      # Step 3: Backend - Install deps & run Jest tests
       # -----------------------------
-      - name: Backend - Install dependencies & run tests
+      - name: Backend - Install dependencies & run Jest tests
         working-directory: ./code/petmanagement_backend_rajalakshmi
         run: |
           npm ci
+          # Install jest (and ts-jest if TypeScript backend)
+          npm install --save-dev jest @types/jest ts-jest
+          # Initialize Jest config if not present
+          npx ts-jest config:init || true
+          # Run backend tests
           npm test
 
       # -----------------------------
@@ -44,7 +49,7 @@ jobs:
           npm ci
           npm install -g @angular/cli
 
-      - name: Frontend - Run unit tests
+      - name: Frontend - Run Angular unit tests (Headless)
         working-directory: ./code/petmanagement_frontend_rajalakshmi
         run: |
           npx ng test --watch=false --browsers=ChromeHeadless
