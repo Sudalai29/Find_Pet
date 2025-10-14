@@ -3,7 +3,7 @@ name: Test, Build & Push (Node.js + Angular)
 on:
   push:
     branches:
-      - main
+      - temp-disable
   pull_request:
   workflow_dispatch:
 
