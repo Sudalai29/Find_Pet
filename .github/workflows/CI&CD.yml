@@ -101,15 +101,11 @@ jobs:
             echo "🚀 Starting deployment..."
             cd /home/ubuntu/Find_Pet/code
       
-            # Export Docker username dynamically inside EC2 shell
-            DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}"
-            echo "Docker username: ${DOCKER_USERNAME}"
-      
+            # Inject Docker username directly from GitHub secret
             cp docker-compose.yml docker-compose.yml.bak
-      
             echo "🔧 Updating docker-compose.yml with image references..."
-            sed -i "s|  build:.*petmanagement_backend_rajalakshmi|  image: ${DOCKER_USERNAME}/findpet-backend:latest|" docker-compose.yml
-            sed -i "s|  build:.*petmanagement_frontend_rajalakshmi|  image: ${DOCKER_USERNAME}/findpet-frontend:latest|" docker-compose.yml
+            sed -i "s|  build:.*petmanagement_backend_rajalakshmi|  image: ${{ secrets.DOCKER_USERNAME }}/findpet-backend:latest|" docker-compose.yml
+            sed -i "s|  build:.*petmanagement_frontend_rajalakshmi|  image: ${{ secrets.DOCKER_USERNAME }}/findpet-frontend:latest|" docker-compose.yml
       
             echo "📦 Pulling latest images..."
             docker compose pull
@@ -118,5 +114,6 @@ jobs:
             docker compose up -d
       
             echo "✅ Deployment complete."
+
             
 
