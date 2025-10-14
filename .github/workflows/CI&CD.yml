@@ -103,14 +103,14 @@ jobs:
             cd /home/ubuntu/Find_Pet/code
       
             # Backup docker-compose.yml
-            cp docker-compose.yml docker-compose.yml.bak
+            cp docker compose.yml docker compose.yml.bak
       
             # Replace build with image references for backend & frontend
-            sed -i 's|  build:.*petmanagement_backend_rajalakshmi|  image: '"${{ secrets.DOCKER_USERNAME }}"'/findpet-backend:latest|' docker-compose.yml
-            sed -i 's|  build:.*petmanagement_frontend_rajalakshmi|  image: '"${{ secrets.DOCKER_USERNAME }}"'/findpet-frontend:latest|' docker-compose.yml
+            sed -i 's|  build:.*petmanagement_backend_rajalakshmi|  image: '"${{ secrets.DOCKER_USERNAME }}"'/findpet-backend:latest|' docker compose.yml
+            sed -i 's|  build:.*petmanagement_frontend_rajalakshmi|  image: '"${{ secrets.DOCKER_USERNAME }}"'/findpet-frontend:latest|' docker compose.yml
       
             # Pull latest images
-            docker-compose pull
+            docker compose pull
       
             # Start/restart containers
-            docker-compose up -d
+            docker compose up -d
