@@ -1,3 +1,5 @@
+// db.config.js
 module.exports = {
-  url: "mongodb://localhost:27017/petmanagement"
+  url: process.env.MONGO_URL || "mongodb://localhost:27017/petmanagement"
 };
+

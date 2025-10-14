@@ -1,103 +1,121 @@
 const express = require("express");
 const cors = require("cors");
-const dotenv = require('dotenv');
+const dotenv = require("dotenv");
 const http = require("http");
-const path = require('path');
-const requestIp = require('request-ip');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const helmet = require('helmet');
-const mongoSanitize = require('express-mongo-sanitize');
+const path = require("path");
+const requestIp = require("request-ip");
+const cookieParser = require("cookie-parser");
+const logger = require("morgan");
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
 const rateLimit = require("express-rate-limit");
-//file requirements
-const userRoutes = require('./app/routes/sresu.routes.js')
-const useragent = require('./app/config/useragent.js')
+
+// File requirements
+const userRoutes = require("./app/routes/sresu.routes.js");
+const useragent = require("./app/config/useragent.js");
+
 dotenv.config();
+
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-app.use(cors(
-  {
-    origin: ['http://localhost:4200', 'http://localhost:4200/'],
-    credentials: true,
+// =============================
+// ✅ CORS Configuration (Top Priority)
+// =============================
+const allowedOrigins = [
+  "http://13.203.226.60:4000", // Deployed frontend
+  "http://localhost:4000",     // Local frontend
+];
 
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
   }
-)
-)
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      "scriptSrc": ["'self'", 'http://localhost:4200', 'http://localhost:4200/'],
-      "defaultSrc": ["'self'", 'http://localhost:4200', 'http://localhost:4200/'],
-      "styleSrc": ["'self'", 'http://localhost:4200', 'http://localhost:4200/'],
-      "fontSrc": ["'self'", 'https', 'data'],
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma"
+  );
+  res.header("Access-Control-Allow-Credentials", "true");
+  
+  // ✅ Handle preflight OPTIONS requests quickly
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  next();
+});
 
-    },
-  },
-  crossOriginOpenerPolicy: { policy: "unsafe-none" },
-  crossOriginResourcePolicy: { policy: "cross-origin" },
-  crossOriginEmbedderPolicy: { policy: "require-corp" },
-  referrerPolicy: {
-    policy: "strict-origin-when-cross-origin",
-  },
+// =============================
+// ✅ Helmet (Security Headers)
+// =============================
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginOpenerPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 
-}));
-app.use(logger('combined'));
+// =============================
+// ✅ Core Middleware
+// =============================
+app.use(logger("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 app.use(mongoSanitize());
+app.use(requestIp.mw());
 
+// =============================
+// ✅ Block Certain User Agents
+// =============================
 app.use((req, res, next) => {
   const userAgent = req.get("User-Agent");
   if (useragent.useragent.includes(userAgent)) {
-    res
-      .status(403)
-      .json({ status: false, message: "Access Denied" });
+    res.status(403).json({ status: false, message: "Access Denied" });
   } else {
     next();
   }
 });
 
-app.use(function (req, res, next) {
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type,X-Requested-With, Accept,connectioncontrol,post-signature usertoken');
-  res.setHeader('Permissions-Policy', 'geolocation=(self "http://localhost:4200/" "http://localhost:4200/")')
-  next();
-});
-app.use(requestIp.mw());
-
+// =============================
+// ✅ Rate Limiting
+// =============================
 const limiter = rateLimit({
-  windowMs: 1 * 1000, // 1 second
-  max: 45, // limit each IP to 20 requests per windowMs
-  keyGenerator: (req, res) => {
-    return req.clientIp // IP address from requestIp.mw(), as opposed to req.ip
-  }
+  windowMs: 1000, // 1 second
+  max: 45,
+  keyGenerator: (req) => req.clientIp,
 });
-
-//  apply to all requests
 app.use(limiter);
 
-
-// Define the port
-const PORT = process.env.PORT;
-
+// =============================
+// ✅ Database Connection
+// =============================
 const dbconfigconnection = require("./app/models/index.js");
-dbconfigconnection()
+dbconfigconnection();
 
-
-// simple route
+// =============================
+// ✅ Routes
+// =============================
 app.get("/", (req, res) => {
-  res.json({ status: true, message: "Welcome to pet missing report management backend application." });
+  res.json({
+    status: true,
+    message: "Welcome to pet missing report management backend application.",
+  });
 });
 
-app.use('/uploads', express.static(path.join(__dirname, '/app/routes/uploads')));
-app.use('/v1/users', userRoutes)
+app.use("/uploads", express.static(path.join(__dirname, "/app/routes/uploads")));
+app.use("/v1/users", userRoutes);
 
-let server = http.createServer(app);
-server.listen(PORT, () => {
-  console.log('HTTP Server running on port ' + PORT);
+// =============================
+// ✅ Start HTTP Server
+// =============================
+const server = http.createServer(app);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 HTTP Server running on port ${PORT}`);
 });
+
 module.exports = app;
-
-

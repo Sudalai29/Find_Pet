@@ -1,0 +1,47 @@
+
+services:
+  backend:
+    build:
+      context: ./petmanagement_backend_rajalakshmi
+    container_name: my-node-backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./petmanagement_backend_rajalakshmi/.env
+    networks:
+      - app-network
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/petmanagement  # Use service name
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    restart: always
+    ports:
+      - "127.0.0.1:27017:27017"  # Only expose to localhost for security
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./petmanagement_frontend_rajalakshmi
+    container_name: my-angular-frontend
+    ports:
+      - "4000:4000"
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    environment:
+      - API_URL=http://13.203.226.60:5000/v1
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
