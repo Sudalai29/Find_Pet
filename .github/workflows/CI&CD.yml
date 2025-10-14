@@ -89,28 +89,32 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: ${{ secrets.EC2_HOST }}      # EC2 public IP
-          username: ubuntu                        # Must match the EC2 default username
-          key: ${{ secrets.EC2_SSH_KEY }}        # Private key corresponding to EC2 keypair
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           timeout: 60s
           command_timeout: 10m
-          debug: true                             # Enable debug logs
+          debug: true
+          envs: DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
           script: |
-            set -e  # Exit on any error
-      
-            # Navigate to docker-compose directory
+            set -e
+
+            echo "🚀 Starting deployment..."
+
             cd /home/ubuntu/Find_Pet/code
-      
-            # Backup docker-compose.yml
+
+            echo "Backing up docker-compose.yml..."
             cp docker-compose.yml docker-compose.yml.bak
-      
-            # Replace build with image references for backend & frontend
-            sed -i 's|  build:.*petmanagement_backend_rajalakshmi|  image: '"${{ secrets.DOCKER_USERNAME }}"'/findpet-backend:latest|' docker-compose.yml
-            sed -i 's|  build:.*petmanagement_frontend_rajalakshmi|  image: '"${{ secrets.DOCKER_USERNAME }}"'/findpet-frontend:latest|' docker-compose.yml
-      
-            # Pull latest images
+
+            echo "Updating docker-compose.yml with image references..."
+            sed -i "s|  build:.*petmanagement_backend_rajalakshmi|  image: ${DOCKER_USERNAME}/findpet-backend:latest|" docker-compose.yml
+            sed -i "s|  build:.*petmanagement_frontend_rajalakshmi|  image: ${DOCKER_USERNAME}/findpet-frontend:latest|" docker-compose.yml
+
+            echo "Pulling latest images..."
             docker compose pull
-      
-            # Start/restart containers
+
+            echo "Starting containers..."
             docker compose up -d
+
+            echo "✅ Deployment complete."
