@@ -81,3 +81,28 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/findpet-frontend:latest
             ${{ secrets.DOCKER_USERNAME }}/findpet-frontend:${{ github.sha }}
+
+      # -----------------------------
+      # Step 8: Deploy to EC2 & update docker-compose
+      # -----------------------------
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/Find_Pet/code  # path to your docker-compose.yml
+
+            # Backup docker-compose.yml
+            cp docker-compose.yml docker-compose.yml.bak
+
+            # Replace build with image for backend & frontend
+            sed -i 's|  build:.*petmanagement_backend_rajalakshmi|  image: '"${{ secrets.DOCKER_USERNAME }}"'/findpet-backend:latest|' docker-compose.yml
+            sed -i 's|  build:.*petmanagement_frontend_rajalakshmi|  image: '"${{ secrets.DOCKER_USERNAME }}"'/findpet-frontend:latest|' docker-compose.yml
+
+            # Pull latest images
+            docker-compose pull
+
+            # Start or restart containers
+            docker-compose up -d
