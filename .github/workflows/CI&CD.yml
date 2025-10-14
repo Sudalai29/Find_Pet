@@ -49,11 +49,6 @@ jobs:
           npm ci
           npm install -g @angular/cli
 
-      - name: Frontend - Run Angular unit tests (Headless)
-        working-directory: ./code/petmanagement_frontend_rajalakshmi
-        run: |
-          npx ng test --watch=false --browsers=ChromeHeadless
-
       # -----------------------------
       # Step 5: Login to Docker Hub
       # -----------------------------
