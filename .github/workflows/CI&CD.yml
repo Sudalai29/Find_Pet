@@ -30,7 +30,7 @@ jobs:
       # Step 3: Backend - Install deps & run tests
       # -----------------------------
       - name: Backend - Install dependencies & run tests
-        working-directory: ./petmanagement_backend_rajalakshmi
+        working-directory: ./code/petmanagement_backend_rajalakshmi
         run: |
           npm ci
           npm test
@@ -39,13 +39,13 @@ jobs:
       # Step 4: Frontend - Install deps & run Angular tests
       # -----------------------------
       - name: Frontend - Install dependencies
-        working-directory: ./petmanagement_frontend_rajalakshmi
+        working-directory: ./code/petmanagement_frontend_rajalakshmi
         run: |
           npm ci
           npm install -g @angular/cli
 
       - name: Frontend - Run unit tests
-        working-directory: ./petmanagement_frontend_rajalakshmi
+        working-directory: ./code/petmanagement_frontend_rajalakshmi
         run: |
           npx ng test --watch=false --browsers=ChromeHeadless
 
@@ -64,7 +64,7 @@ jobs:
       - name: Build and push backend image
         uses: docker/build-push-action@v6
         with:
-          context: ./petmanagement_backend_rajalakshmi
+          context: ./code/petmanagement_backend_rajalakshmi
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/findpet-backend:latest
@@ -76,7 +76,7 @@ jobs:
       - name: Build and push frontend image
         uses: docker/build-push-action@v6
         with:
-          context: ./petmanagement_frontend_rajalakshmi
+          context: ./code/petmanagement_frontend_rajalakshmi
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/findpet-frontend:latest
