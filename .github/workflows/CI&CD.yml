@@ -85,28 +85,32 @@ jobs:
       # -----------------------------
       # Step 8: Deploy to EC2 & update docker-compose
       # -----------------------------
-      - name: SSH to EC2 & update Docker Compose
+      # -----------------------------
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: ${{ secrets.EC2_PUBLIC_IP }}        # Your EC2 public IP
-          username: ubuntu                           # EC2 username (ubuntu for Ubuntu AMI)
-          key: ${{ secrets.EC2_SSH_KEY }}           # Your private key PEM stored as GitHub secret
+          host: ${{ secrets.EC2_PUBLIC_IP }}      # EC2 public IP
+          username: ubuntu                        # Must match the EC2 default username
+          key: ${{ secrets.EC2_PEM_KEY }}        # Private key corresponding to EC2 keypair
           port: 22
+          timeout: 60s
+          command_timeout: 10m
+          debug: true                             # Enable debug logs
           script: |
             set -e  # Exit on any error
       
-            # Navigate to the docker-compose directory
+            # Navigate to docker-compose directory
             cd /home/ubuntu/Find_Pet/code
       
             # Backup docker-compose.yml
             cp docker-compose.yml docker-compose.yml.bak
       
-            # Replace build sections with image references
+            # Replace build with image references for backend & frontend
             sed -i 's|  build:.*petmanagement_backend_rajalakshmi|  image: '"${{ secrets.DOCKER_USERNAME }}"'/findpet-backend:latest|' docker-compose.yml
             sed -i 's|  build:.*petmanagement_frontend_rajalakshmi|  image: '"${{ secrets.DOCKER_USERNAME }}"'/findpet-frontend:latest|' docker-compose.yml
       
             # Pull latest images
             docker-compose pull
       
-            # Restart containers
+            # Start/restart containers
             docker-compose up -d
