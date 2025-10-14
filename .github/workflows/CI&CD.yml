@@ -88,6 +88,8 @@ jobs:
       # -----------------------------
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.8
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
@@ -96,12 +98,11 @@ jobs:
           timeout: 60s
           command_timeout: 10m
           debug: true
-          envs: DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+          envs: DOCKER_USERNAME
           script: |
             set -e
 
             echo "🚀 Starting deployment..."
-
             cd /home/ubuntu/Find_Pet/code
 
             echo "Backing up docker-compose.yml..."
@@ -116,5 +117,7 @@ jobs:
 
             echo "Starting containers..."
             docker compose up -d
+
+            echo "✅ Deployment complete."
 
             echo "✅ Deployment complete."
