@@ -87,7 +87,7 @@ jobs:
       # -----------------------------
       # -----------------------------
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.8
+        uses: appleboy/ssh-action@v1.0.0
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         with:
@@ -101,23 +101,13 @@ jobs:
           envs: DOCKER_USERNAME
           script: |
             set -e
-
             echo "🚀 Starting deployment..."
             cd /home/ubuntu/Find_Pet/code
-
-            echo "Backing up docker-compose.yml..."
+            echo "Docker username: ${DOCKER_USERNAME}"
             cp docker-compose.yml docker-compose.yml.bak
-
-            echo "Updating docker-compose.yml with image references..."
             sed -i "s|  build:.*petmanagement_backend_rajalakshmi|  image: ${DOCKER_USERNAME}/findpet-backend:latest|" docker-compose.yml
             sed -i "s|  build:.*petmanagement_frontend_rajalakshmi|  image: ${DOCKER_USERNAME}/findpet-frontend:latest|" docker-compose.yml
-
-            echo "Pulling latest images..."
             docker compose pull
-
-            echo "Starting containers..."
             docker compose up -d
-
             echo "✅ Deployment complete."
 
-            echo "✅ Deployment complete."
