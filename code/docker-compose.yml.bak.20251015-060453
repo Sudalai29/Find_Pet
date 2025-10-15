@@ -39,7 +39,7 @@ services:
   log-monitor:
     build:
       context: ./monitor
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.monitor
     container_name: petfinder-log-monitor
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

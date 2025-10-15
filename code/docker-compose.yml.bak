@@ -1,6 +1,6 @@
 services:
   backend:
-    image: sudalai29/findpet-backend:latest   # <-- updated to use pushed image
+    image: <DOCKER_USERNAME>/findpet-backend:latest   # <-- updated to use pushed image
     container_name: my-node-backend
     ports:
       - "5000:5000"
@@ -25,7 +25,7 @@ services:
       - app-network
 
   frontend:
-    image: sudalai29/findpet-frontend:latest  # <-- updated to use pushed image
+    image: <DOCKER_USERNAME>/findpet-frontend:latest  # <-- updated to use pushed image
     container_name: my-angular-frontend
     ports:
       - "4000:4000"
@@ -35,17 +35,6 @@ services:
       - backend
     environment:
       - API_URL=http://13.203.226.60:5000/v1
-
-  log-monitor:
-    build:
-      context: ./monitor
-      dockerfile: Dockerfile
-    container_name: petfinder-log-monitor
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/log:/var/log
-    restart: always
-
 
 networks:
   app-network:
