@@ -1,6 +1,5 @@
-###########################
-# 🏗️ 1️⃣ BUILD STAGE
-###########################
+# Build Stage
+
 FROM node:18-alpine AS builder
 
 WORKDIR /usr/src/app
@@ -8,9 +7,8 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 
-###########################
-# 🚀 2️⃣ RUN STAGE
-###########################
+# RUN STAGE
+
 FROM node:18-alpine AS runner
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
