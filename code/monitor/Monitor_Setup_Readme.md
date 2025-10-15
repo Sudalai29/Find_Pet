@@ -381,4 +381,3 @@ sudo systemctl daemon-reload
 
 **Version:** 1.0  
 **Last Updated:** October 2025  
-**Maintainer:** Your Team Na
