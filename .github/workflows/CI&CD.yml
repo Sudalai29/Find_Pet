@@ -3,7 +3,7 @@ name: Test, Build & Push (Node.js + Angular)
 on:
   push:
     branches:
-      - main
+      - temp-disable
   pull_request:
   workflow_dispatch:
 
@@ -97,29 +97,28 @@ jobs:
           command_timeout: 10m
           debug: true
           script: |
-            set -e
-
-            echo "🚀 Starting deployment..."
-            cd /home/ubuntu/Find_Pet/code
+            #!/usr/bin/env bash
+            set -euo pipefail
             
-            # Backup docker-compose.yml
-            cp docker-compose.yml docker-compose.yml.bak
+            PROJECT_DIR="/home/ubuntu/Find_Pet/code"
+            cd "$PROJECT_DIR"
             
-            echo "🔧 Updating docker-compose.yml with hardcoded image names..."
-            sed -i "s|<DOCKER_USERNAME>/findpet-backend:latest|sudalai29/findpet-backend:latest|" docker-compose.yml
-            sed -i "s|<DOCKER_USERNAME>/findpet-frontend:latest|sudalai29/findpet-frontend:latest|" docker-compose.yml
+            echo "🚀 Starting deployment in $PROJECT_DIR"
             
-            # Optional: verify the change
-            echo "📝 Updated docker-compose.yml image lines:"
-            grep "image:" docker-compose.yml
+            # Optional: backup compose file (just in case)
+            cp docker-compose.yml docker-compose.yml.bak.$(date +%Y%m%d-%H%M%S)
             
             echo "📦 Pulling latest images..."
             docker compose pull
             
-            echo "🚢 Starting containers..."
-            docker compose up -d
+            echo "🚢 Recreating containers..."
+            docker compose up -d --remove-orphans
+            
+            echo "🧹 Cleaning up old unused images..."
+            docker image prune -f
             
             echo "✅ Deployment complete."
+
 
 
 
