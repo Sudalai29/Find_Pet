@@ -36,16 +36,6 @@ services:
     environment:
       - API_URL=http://13.203.226.60:5000/v1
 
-  log-monitor:
-    build:
-      context: ./monitor
-      dockerfile: Dockerfile
-    container_name: petfinder-log-monitor
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/log:/var/log
-    restart: always
-
 
 networks:
   app-network:
